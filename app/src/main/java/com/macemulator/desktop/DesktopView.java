@@ -175,7 +175,9 @@ public class DesktopView extends FrameLayout {
         body.addView(infoRow("🖱", "Pointer", "Use touch or a connected mouse"));
         body.addView(infoRow("🌙", "Appearance", "Mac-inspired dark glass"));
         body.addView(infoRow("🌐", "Browser", "In-app Android WebView"));
-        createWindow("Settings", body, dp(310), dp(330));
+        body.addView(infoRow("⚙", "Native engine", NativeBridge.engineInfo()));
+        body.addView(infoRow("C#", ".NET helper", "Separate module; not packaged in this APK"));
+        createWindow("Settings", body, dp(310), dp(390));
     }
 
     private void openBrowserWindow() {
