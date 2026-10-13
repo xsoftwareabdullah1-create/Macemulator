@@ -2,24 +2,26 @@
 
 A Java-first, macOS-inspired desktop shell for Android 10 and newer.
 
-> **Honest scope:** Macemulator is an Android app that draws a desktop-like interface. It is not Apple macOS, does not run Mac applications, and does not turn Android Chrome into an embedded Chrome process. The in-app browser uses Android System WebView.
+> **Honest scope:** Macemulator is an Android app that draws a desktop-like interface. It is not Apple macOS, does not run Mac applications, and does not embed the installed Chrome app. The in-app browser uses Android System WebView.
 
-## What works in this starter
+## Features in this starter
 
-- Desktop wallpaper, menu bar, desktop shortcuts, and a Dock.
-- In-app browser window powered by Android WebView, with URL bar, Back, Forward, Reload, and Home.
+- Premium gradient wallpaper, translucent menu bar, desktop shortcuts, and Dock.
+- Browser window that stays inside the app, with address/search bar, Back, Forward, Reload, and Home.
 - Finder-style demo window and a simple settings window.
-- App windows can be moved by dragging their title bars, minimized, maximized/restored, and closed.
-- Touch input works; Android pointer events also work with a connected mouse.
-- Java / Android SDK only for the current UI. No Kotlin is used.
+- Desktop windows can be dragged, manually resized from the bottom-right grip, minimized, maximized/restored, and closed.
+- Touch controls work, with mouse/pointer support for connected peripherals.
+- Java / Android SDK for the current UI. **No Kotlin is used.**
 
-## Compatibility
+## Compatibility and toolchain
 
-- Minimum Android: **10 (API 29)**
-- Compile SDK: 35
-- Java: 17
-- Android Gradle Plugin: 8.7.3
-- Gradle: 8.9
+| Item | Version |
+| --- | --- |
+| Minimum Android | Android 10 (API 29) |
+| Compile SDK | 35 |
+| Java | 17 |
+| Android Gradle Plugin | 8.7.3 |
+| Gradle | 8.9 |
 
 ## Build an APK
 
@@ -38,28 +40,28 @@ gradle assembleDebug
 The APK is created at `app/build/outputs/apk/debug/app-debug.apk`.
 
 ### GitHub Actions
-Push to `main` or open a pull request to run **Android CI**. You can also start it manually from **Actions → Android CI → Run workflow**. The generated debug APK is uploaded as an artifact named `macemulator-debug-apk`.
+Push to `main` or open a pull request to run **Android CI**. You can also start it manually from **Actions → Android CI → Run workflow**. A successful run uploads a debug APK artifact named `macemulator-debug-apk`.
 
-## Browser notes
+## Browser limitation
 
-The Dock's **Chrome**-labelled shortcut opens the browser window *inside Macemulator*. It uses Android's WebView component, not the installed Chrome app's private tabs, extensions, cookies, or profile. Android does not provide a supported way for a third-party app to embed the full Chrome application inside its own resizable window.
+The Dock's **Chrome**-labelled shortcut opens a browser window *inside Macemulator*. It uses Android System WebView, not the installed Chrome app's private tabs, extensions, cookies, or profile. Android does not provide a supported way for a third-party app to embed the full Chrome application inside its own resizable window.
 
 ## Roadmap
 
-- [x] Java-only desktop shell and Dock
+- [x] Java desktop shell and Dock
 - [x] In-app WebView browser window
-- [x] Drag, minimize, maximize/restore, and close desktop windows
+- [x] Draggable, resizable, minimize/maximize, and close controls
 - [x] Demo file manager and settings windows
-- [x] GitHub Actions debug APK build
-- [ ] Persistent file manager backed by Android's Storage Access Framework
-- [ ] Keyboard shortcuts and window focus/z-order polish
+- [x] GitHub Actions debug APK workflow
+- [ ] Persistent file manager using Android's Storage Access Framework
+- [ ] Keyboard shortcuts and improved window focus/z-order
 - [ ] Automated UI tests on Android 10+ devices
 
 ## Troubleshooting
 
-- **Browser shows a blank page:** check the device's internet connection and try an HTTPS URL.
-- **Chrome is not actually embedded:** this is expected; the in-app browser is WebView. The separate Chrome app is not embedded.
-- **APK build fails:** open the failed GitHub Actions run and inspect the first Gradle or Android SDK error before changing versions.
+- **Browser shows a blank page:** check internet access and try an HTTPS URL.
+- **Chrome is not embedded:** this is expected; the in-app browser uses WebView.
+- **APK build fails:** open the failed GitHub Actions run and inspect the first Gradle or Android SDK error.
 
 ## License
 
