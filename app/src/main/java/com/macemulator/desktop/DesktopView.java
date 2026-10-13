@@ -34,6 +34,7 @@ public class DesktopView extends FrameLayout {
     private final FrameLayout windowsLayer;
     private int nextWindowOffset = 0;
     private TextView clockView;
+    private CursorOverlay cursorOverlay;
 
     public DesktopView(Context context) {
         super(context);
@@ -51,6 +52,10 @@ public class DesktopView extends FrameLayout {
         buildMenuBar(context);
         buildDesktopShortcuts(context);
         buildDock(context);
+        cursorOverlay = new CursorOverlay(context);
+        cursorOverlay.setClickable(false);
+        cursorOverlay.setFocusable(false);
+        addView(cursorOverlay, new FrameLayout.LayoutParams(-1, -1));
         post(new Runnable() {
             @Override public void run() {
                 if (clockView != null) {
@@ -59,6 +64,11 @@ public class DesktopView extends FrameLayout {
                 }
             }
         });
+    }
+
+    @Override public boolean dispatchTouchEvent(MotionEvent event) {
+        if (cursorOverlay != null) cursorOverlay.updatePointer(event.getX(), event.getY(), event.getActionMasked());
+        return super.dispatchTouchEvent(event);
     }
 
     private void buildMenuBar(Context context) {
@@ -449,6 +459,35 @@ public class DesktopView extends FrameLayout {
         static String encode(String value) {
             try { return java.net.URLEncoder.encode(value, "UTF-8"); }
             catch (Exception ignored) { return value; }
+        }
+    }
+
+    /** Visible pointer overlay; it observes input without consuming click events. */
+    private class CursorOverlay extends View {
+        private final Paint cursorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private float pointerX = -100f, pointerY = -100f;
+        private boolean pointerVisible;
+        CursorOverlay(Context context) { super(context); setWillNotDraw(false); }
+        void updatePointer(float x, float y, int action) {
+            pointerX = x; pointerY = y; pointerVisible = action != MotionEvent.ACTION_CANCEL;
+            invalidate();
+        }
+        @Override protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+            if (!pointerVisible) return;
+            android.graphics.Path path = new android.graphics.Path();
+            path.moveTo(pointerX, pointerY); path.lineTo(pointerX, pointerY + dp(25));
+            path.lineTo(pointerX + dp(6), pointerY + dp(19));
+            path.lineTo(pointerX + dp(11), pointerY + dp(29));
+            path.lineTo(pointerX + dp(15), pointerY + dp(27));
+            path.lineTo(pointerX + dp(10), pointerY + dp(17));
+            path.lineTo(pointerX + dp(19), pointerY + dp(17)); path.close();
+            cursorPaint.setStyle(Paint.Style.FILL); cursorPaint.setColor(Color.WHITE);
+            cursorPaint.setShadowLayer(dp(2), 0, dp(1), Color.BLACK);
+            canvas.drawPath(path, cursorPaint); cursorPaint.clearShadowLayer();
+            cursorPaint.setStyle(Paint.Style.STROKE); cursorPaint.setStrokeWidth(dp(1.4f));
+            cursorPaint.setColor(0xFF182033); canvas.drawPath(path, cursorPaint);
+            cursorPaint.setStyle(Paint.Style.FILL);
         }
     }
 
