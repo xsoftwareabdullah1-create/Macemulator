@@ -344,8 +344,10 @@ public class DesktopView extends FrameLayout {
             } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
                 int dx = (int) event.getRawX() - resizeStart[0];
                 int dy = (int) event.getRawY() - resizeStart[1];
-                lp.width = Math.max(dp(250), Math.min(getWidth() - lp.leftMargin, resizeStart[2] + dx));
-                lp.height = Math.max(dp(200), Math.min(getHeight() - lp.topMargin, resizeStart[3] + dy));
+                lp.width = NativeBridge.clampDimension(resizeStart[2] + dx, dp(250),
+                        Math.max(dp(250), getWidth() - lp.leftMargin));
+                lp.height = NativeBridge.clampDimension(resizeStart[3] + dy, dp(200),
+                        Math.max(dp(200), getHeight() - lp.topMargin));
                 window.setLayoutParams(lp);
                 return true;
             } else if (event.getAction() == MotionEvent.ACTION_UP) {
