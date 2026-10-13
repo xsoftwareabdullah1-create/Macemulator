@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.Color;
@@ -21,7 +20,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,8 +31,6 @@ import java.util.Locale;
 public class DesktopView extends FrameLayout {
     private final int white = Color.WHITE;
     private final int ink = Color.rgb(26, 31, 48);
-    private final int muted = Color.rgb(202, 211, 231);
-    private final int glass = 0xD91B2030;
     private final FrameLayout windowsLayer;
     private int nextWindowOffset = 0;
     private TextView clockView;
@@ -291,7 +287,16 @@ public class DesktopView extends FrameLayout {
         titleBar.addView(maximize);
         titleBar.addView(close);
         window.addView(titleBar, new LinearLayout.LayoutParams(-1, dp(44)));
-        window.addView(content, new LinearLayout.LayoutParams(-1, 0, 1));
+
+        FrameLayout bodyFrame = new FrameLayout(getContext());
+        bodyFrame.addView(content, new FrameLayout.LayoutParams(-1, -1));
+        TextView resizeGrip = label("◢", 13, 0xFF7C8496, true);
+        resizeGrip.setGravity(Gravity.CENTER);
+        resizeGrip.setBackground(roundDrawable(0xFFE8EBF2, 6));
+        FrameLayout.LayoutParams gripParams = new FrameLayout.LayoutParams(dp(24), dp(24), Gravity.BOTTOM | Gravity.RIGHT);
+        gripParams.setMargins(0, 0, dp(4), dp(4));
+        bodyFrame.addView(resizeGrip, gripParams);
+        window.addView(bodyFrame, new LinearLayout.LayoutParams(-1, 0, 1));
 
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(width, height, Gravity.TOP | Gravity.START);
         int offset = dp(18) * (nextWindowOffset++ % 5);
@@ -316,6 +321,29 @@ public class DesktopView extends FrameLayout {
                 int dy = (int) event.getRawY() - drag[1];
                 lp.leftMargin = Math.max(0, Math.min(getWidth() - window.getWidth(), drag[2] + dx));
                 lp.topMargin = Math.max(dp(54), Math.min(getHeight() - dp(82), drag[3] + dy));
+                window.setLayoutParams(lp);
+                return true;
+            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                return true;
+            }
+            return true;
+        });
+
+        final int[] resizeStart = new int[4];
+        resizeGrip.setOnTouchListener((v, event) -> {
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) window.getLayoutParams();
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                resizeStart[0] = (int) event.getRawX();
+                resizeStart[1] = (int) event.getRawY();
+                resizeStart[2] = lp.width;
+                resizeStart[3] = lp.height;
+                window.bringToFront();
+                return true;
+            } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                int dx = (int) event.getRawX() - resizeStart[0];
+                int dy = (int) event.getRawY() - resizeStart[1];
+                lp.width = Math.max(dp(250), Math.min(getWidth() - lp.leftMargin, resizeStart[2] + dx));
+                lp.height = Math.max(dp(200), Math.min(getHeight() - lp.topMargin, resizeStart[3] + dy));
                 window.setLayoutParams(lp);
                 return true;
             } else if (event.getAction() == MotionEvent.ACTION_UP) {
